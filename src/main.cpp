@@ -86,12 +86,12 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
             Serial.println(error.f_str());
           }
 
-          double lM = doc["lM"]; // left motor double
-          double rM = doc["rM"]; // right motor double
-          Serial.printf("left [%f] and right [%f] \n",lM,rM); 
+          #ifdef DEBUG
+          Serial.printf("left [%f] and right [%f] \n",doc["lM"],doc["rM"]); 
+          #endif
 
-          m_leftFMotor.Set(lM);
-          m_rightFMotor.Set(rM);
+          m_leftFMotor.Set(doc["lM"]);
+          m_rightFMotor.Set(doc["rM"]);
           m_leftRMotor.FollowOnce(&m_leftFMotor);
           m_rightRMotor.FollowOnce(&m_rightFMotor);
           
