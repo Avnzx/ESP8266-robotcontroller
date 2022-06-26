@@ -79,7 +79,22 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
           #ifdef DEBUG
           Serial.printf("ws[%s][%u] %s-message[%llu]: %s\n", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len,(char*)data);
           #endif
+          DynamicJsonDocument doc(32); // 16 bytes for each double
+          DeserializationError error = deserializeJson(doc, (char*)data, info->len);
+          if (error) {
+            Serial.print(F("deserializeJson() failed: "));
+            Serial.println(error.f_str());
+          }
 
+          double lM = doc["lM"]; // left motor double
+          double rM = doc["rM"]; // right motor double
+          Serial.printf("left [%f] and right [%f] \n",lM,rM); 
+
+          m_leftFMotor.Set(lM);
+          m_rightFMotor.Set(rM);
+          m_leftRMotor.FollowOnce(&m_leftFMotor);
+          m_rightRMotor.FollowOnce(&m_rightFMotor);
+          
 
         }  
       }
@@ -147,11 +162,6 @@ void setup()
   taskManager.scheduleFixedRate(1, [] {
     ws.cleanupClients(5);
   }, TIME_SECONDS);
-
-  m_leftFMotor.Set(-0.5);
-  m_rightFMotor.Set(-1);
-  m_leftRMotor.FollowOnce(&m_leftFMotor);
-  m_rightRMotor.FollowOnce(&m_rightRMotor);
 
   taskManager.scheduleFixedRate(200, [] { // most controllers run at 50Hz (20ms)
     m_leftFMotor.Run();
