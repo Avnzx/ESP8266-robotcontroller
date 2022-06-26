@@ -1,14 +1,29 @@
 #include "pwmmotor.h"
 #include <math.h>
 #include <algorithm>
+#include <TaskManagerIO.h>
 
 using namespace motorcontrol;
 
+    PWMMotorController::PWMMotorController(int port){
+        m_port = port;
+        m_servo.attach(m_port);
+    }
+
+    PWMMotorController::~PWMMotorController(){
+        m_servo.detach();
+    }
+
     void PWMMotorController::Set(double speed){
-        if (std::isfinite(speed)) {
-            speed = std::clamp(speed, -1.0, 1.0);
+        if (!std::isfinite(speed)) { speed = 0.0; }
+        speed = m_inverted ? -speed : speed;
+
+        if (speed > 0){
+            m_valueUs = ((m_forwardUs - (m_neutralUs + m_deadbandUs)) * speed) + (m_neutralUs + m_deadbandUs);
+        } else if (speed < 0) {
+            m_valueUs = ((((m_neutralUs - m_deadbandUs) - m_reverseUs) * speed) + m_neutralUs);
         } else {
-            speed = 0.0;
+            m_valueUs = m_neutralUs;
         }
     }
 
@@ -22,4 +37,21 @@ using namespace motorcontrol;
      */
     void PWMMotorController::SetInverted(bool isInverted) {
 
+    }
+
+
+    void PWMMotorController::Run(){
+        m_servo.writeMicroseconds(m_valueUs);
+    }
+
+    double PWMMotorController::GetUs(){
+        return m_valueUs;
+    }
+
+    void PWMMotorController::SetUs(double speed){
+        m_valueUs = speed;
+    }
+
+    void PWMMotorController::FollowOnce(PWMMotorController* controller){
+        m_valueUs = controller->GetUs();
     }

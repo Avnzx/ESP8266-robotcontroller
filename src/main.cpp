@@ -8,6 +8,7 @@
   #define MYFS SPIFFS
 #endif
 
+#include "main.h"
 #include <ArduinoOTA.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
@@ -21,9 +22,6 @@
 #include <string.h>
 #include <Servo.h>
 #include <ArduinoJson.h>
-
-
-
 
 
 // Set LED_BUILTIN if it is not defined by Arduino framework
@@ -78,7 +76,9 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
           #endif
         } else {
           data[len] = 0;
+          #ifdef DEBUG
           Serial.printf("ws[%s][%u] %s-message[%llu]: %s\n", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len,(char*)data);
+          #endif
 
 
         }  
@@ -147,6 +147,21 @@ void setup()
   taskManager.scheduleFixedRate(1, [] {
     ws.cleanupClients(5);
   }, TIME_SECONDS);
+
+  m_leftFMotor.Set(-0.5);
+  m_rightFMotor.Set(-1);
+  m_leftRMotor.FollowOnce(&m_leftFMotor);
+  m_rightRMotor.FollowOnce(&m_rightRMotor);
+
+  taskManager.scheduleFixedRate(200, [] { // most controllers run at 50Hz (20ms)
+    m_leftFMotor.Run();
+    m_rightFMotor.Run();
+    m_leftRMotor.Run();
+    m_rightRMotor.Run();
+
+  }, TIME_MILLIS
+  );
+   
 
 }
 

@@ -1,7 +1,8 @@
 #pragma once 
+#include <Servo.h>
 
 namespace motorcontrol {
-class PWMMotorController {
+class PWMMotorController : Servo {
 
 public:
     /**
@@ -28,6 +29,28 @@ public:
     void Set(double speed);
 
     /**
+     * @brief Get the value in microseconds of the controller
+     * 
+     *
+     */
+    double GetUs();
+
+    /**
+     * @brief Set the speed in microseconds of the controller
+     * 
+     * @param speed 
+     */
+    void SetUs(double speed);
+
+
+    /**
+     * @brief Has to be updated, call this when you call Run() for the master
+     * 
+     * @param controller to follow 
+     */
+    void FollowOnce(PWMMotorController* controller);
+
+    /**
      * Common interface for inverting direction of a speed controller.
      *
      * This call has no effect if the controller is a follower. To invert
@@ -37,8 +60,25 @@ public:
      */
     void SetInverted(bool isInverted);
 
+
+    /**
+     * @brief DO NOT RUN OUTSIDE OF LOOP
+     * 
+     */
+    void Run();
+
 private:
+    Servo m_servo;
+
+    int m_reverseUs = 1000;
+    int m_neutralUs = 1500;
+    int m_forwardUs = 2000;
+    int m_deadbandUs = 40;
+
+    bool m_inverted = false;
+
     int m_port;
+    int m_valueUs = m_neutralUs;
 
 
 };
