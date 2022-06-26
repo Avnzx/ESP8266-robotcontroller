@@ -222,7 +222,7 @@ function heartBeat() {
 
 requestAnimationFrame(process);
 
-setInterval(sendMotorData, 200) //change
+setInterval(sendMotorData, 50) //change
 setInterval(heartBeat, 50)
 
 

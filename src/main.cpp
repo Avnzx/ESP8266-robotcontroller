@@ -87,7 +87,7 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
           }
 
           #ifdef DEBUG
-          Serial.printf("left [%f] and right [%f] \n",doc["lM"],doc["rM"]); 
+          Serial.printf("left [%f] and right [%f] \n", doc["lM"],doc["rM"]); 
           #endif
 
           m_leftFMotor.Set(doc["lM"]);

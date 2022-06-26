@@ -15,7 +15,15 @@ function applyDeadband(axisin, deadband = 0.1) {
 }
 
 
+function squareInput(input){
+  return (Math.sign(input) * (input*input));
+}
+
+
 function curvatureDriveIK(xSpd,zRot,allowTurnInPlace = false) {
+  xSpd = squareInput(xSpd); // "square" the inputs and multip by std::copysign
+  zRot = squareInput(zRot);
+
   var xSpeed = clamp(xSpd, -1.0, 1.0);
   var zRotation = clamp(zRot, -1.0, 1.0);
 
