@@ -69,9 +69,6 @@ using namespace motorcontrol;
         if(m_enabled){
             m_servo.writeMicroseconds(m_valueUs);
         } else {
-            #ifdef DEBUG
-            Serial.println("run when disabled");
-            #endif
             m_servo.writeMicroseconds(m_neutralUs);
 
         }

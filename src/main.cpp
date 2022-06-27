@@ -49,6 +49,7 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
           #ifdef DEBUG
           Serial.printf("HB recieved [%u] \n", client->id());
           #endif
+          m_heart.ResetHeart();
         } else {
           data[len] = 0;
           #ifdef DEBUG
@@ -88,6 +89,7 @@ void notFound(AsyncWebServerRequest *request) {
 
 void setup()
 {
+  
   // initialize LED digital pin as an output.
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -140,14 +142,30 @@ void setup()
     ws.cleanupClients(5);
   }, TIME_SECONDS);
 
-  // TODO: remove once heartbeat impl
+  taskManager.scheduleFixedRate(500, [] {
+    if(m_heart.HeartDead()){
+      m_leftFMotor.Disable();
+      m_leftRMotor.Disable();
+      m_rightFMotor.Disable();
+      m_rightRMotor.Disable();
+      #ifdef DEBUG
+      Serial.println("ERR: Motorsafety");
+      #endif
+    } else {
+      m_leftFMotor.Enable();
+      m_leftRMotor.Enable();
+      m_rightFMotor.Enable();
+      m_rightRMotor.Enable();
+    }
+  });
+
+  // TODO: remove once heartbeat & enable/disable webUI impl
   m_leftFMotor.Enable();
   m_rightFMotor.Enable();
   m_leftRMotor.Enable();
   m_rightRMotor.Enable();
 
-   
-
+  m_heart.ResetHeart();
 }
 
 void loop()
