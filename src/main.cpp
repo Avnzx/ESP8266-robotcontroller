@@ -9,18 +9,6 @@
 #endif
 
 #include "main.h"
-#include <ArduinoOTA.h>
-#include <ESPAsyncWebServer.h>
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
-#include <FS.h>
-#include <ESPAsyncTCP.h>
-#include <TaskManagerIO.h>
-#include "constants.h"
-#include <string.h>
-#include <Servo.h>
-#include <ArduinoJson.h>
 
 
 void onBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
