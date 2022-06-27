@@ -60,7 +60,20 @@ public:
      */
     void SetInverted(bool isInverted);
 
+    /**
+     * @brief disable motor
+     * 
+     */
+    void Disable();
 
+    /**
+     * @brief enable motor
+     * 
+     */
+    void Enable();
+
+
+protected:
     /**
      * @brief DO NOT RUN OUTSIDE OF LOOP
      * 
@@ -69,6 +82,7 @@ public:
 
 private:
     Servo m_servo;
+    bool m_enabled = false;
 
     int m_reverseUs = 1000;
     int m_neutralUs = 1500;

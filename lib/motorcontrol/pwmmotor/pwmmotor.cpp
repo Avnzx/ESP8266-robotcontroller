@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <TaskManagerIO.h>
 
+#ifdef DEBUG
+#include <Arduino.h>
+#endif
+
 using namespace motorcontrol;
 
     PWMMotorController::PWMMotorController(int port){
@@ -25,6 +29,7 @@ using namespace motorcontrol;
         } else {
             m_valueUs = m_neutralUs;
         }
+        Run();
     }
 
     /**
@@ -39,11 +44,6 @@ using namespace motorcontrol;
 
     }
 
-
-    void PWMMotorController::Run(){
-        m_servo.writeMicroseconds(m_valueUs);
-    }
-
     double PWMMotorController::GetUs(){
         return m_valueUs;
     }
@@ -55,3 +55,26 @@ using namespace motorcontrol;
     void PWMMotorController::FollowOnce(PWMMotorController* controller){
         m_valueUs = controller->GetUs();
     }
+
+    void PWMMotorController::Disable(){
+        m_enabled = false;
+
+    }
+
+    void PWMMotorController::Enable(){
+        m_enabled = true;
+    }
+
+    void PWMMotorController::Run(){
+        if(m_enabled){
+            m_servo.writeMicroseconds(m_valueUs);
+        } else {
+            #ifdef DEBUG
+            Serial.println("run when disabled");
+            #endif
+            m_servo.writeMicroseconds(m_neutralUs);
+
+        }
+    }
+
+    

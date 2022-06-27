@@ -11,7 +11,6 @@
 #include "main.h"
 #include <ArduinoOTA.h>
 #include <ESPAsyncWebServer.h>
-#include <SPIFFSEditor.h>
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -22,18 +21,6 @@
 #include <string.h>
 #include <Servo.h>
 #include <ArduinoJson.h>
-
-
-// Set LED_BUILTIN if it is not defined by Arduino framework
-#ifndef LED_BUILTIN
-    #define LED_BUILTIN 13
-#endif
-int ledstate = LOW;
-
-
-AsyncWebServer server(httpport);
-AsyncWebSocket ws("/ws");
-AsyncEventSource events("/events");
 
 
 void onBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
@@ -70,7 +57,7 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
         memcpy(dest,data,lentocopy);
         dest[lentocopy] = '\0';
 
-        if( strcmp(dest,heartbeat) == 0 ) {
+        if( strcmp(dest,specialmessage::heartbeat) == 0 ) {
           #ifdef DEBUG
           Serial.printf("HB recieved [%u] \n", client->id());
           #endif
@@ -87,7 +74,9 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
           }
 
           #ifdef DEBUG
-          Serial.printf("left [%f] and right [%f] \n", doc["lM"],doc["rM"]); 
+          double lM = doc["lM"]; // remove the warning
+          double rM = doc["rM"];
+          Serial.printf("commanding left [%f] and right [%f] motors \n", lM,rM); 
           #endif
 
           m_leftFMotor.Set(doc["lM"]);
@@ -163,14 +152,12 @@ void setup()
     ws.cleanupClients(5);
   }, TIME_SECONDS);
 
-  taskManager.scheduleFixedRate(200, [] { // most controllers run at 50Hz (20ms)
-    m_leftFMotor.Run();
-    m_rightFMotor.Run();
-    m_leftRMotor.Run();
-    m_rightRMotor.Run();
+  // TODO: remove once heartbeat impl
+  m_leftFMotor.Enable();
+  m_rightFMotor.Enable();
+  m_leftRMotor.Enable();
+  m_rightRMotor.Enable();
 
-  }, TIME_MILLIS
-  );
    
 
 }

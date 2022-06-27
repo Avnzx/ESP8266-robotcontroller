@@ -188,7 +188,8 @@ function processInputs(info) {
   const { elem, gamepad, axes, buttons } = info;
   motordata = curvatureDriveIK(
     applyDeadband(-gamepad.axes[1]),
-    applyDeadband(gamepad.axes[2])
+    applyDeadband(gamepad.axes[2]),
+    gamepad.buttons[5].pressed
   );
 }
 
