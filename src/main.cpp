@@ -1,13 +1,3 @@
-#define USE_LittleFS
-
-#ifdef USE_LittleFS
-  #include <FS.h>
-  #define MYFS LittleFS
-  #include <LittleFS.h> 
-#else
-  #define MYFS SPIFFS
-#endif
-
 #include "main.h"
 
 
@@ -56,10 +46,11 @@ void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventTyp
           Serial.printf("ws[%s][%u] %s-message[%llu]: %s\n", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len,(char*)data);
           #endif
           DynamicJsonDocument doc(32); // 16 bytes for each double
-          DeserializationError error = deserializeJson(doc, (char*)data, info->len);
-          if (error) {
+          try {
+            deserializeJson(doc, (char*)data, info->len);
+          } catch (DeserializationError& err) {
             Serial.print(F("deserializeJson() failed: "));
-            Serial.println(error.f_str());
+            Serial.println(err.f_str());
           }
 
           #ifdef DEBUG
@@ -87,24 +78,7 @@ void notFound(AsyncWebServerRequest *request) {
 
 
 
-void setup()
-{
-  
-  // initialize LED digital pin as an output.
-  Serial.begin(115200);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN,0);
-  // setup AP open
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, NULL, 11, 0, 4);
-
-  Serial.println("");
-  Serial.print("We are: ");
-  Serial.println(ssid);
-
-  if (MDNS.begin("esp8266")){
-    Serial.println("MDNS responder started");
-  }
+void setup() {
 
   // Attach websocket
   ws.onEvent(onEvent);
@@ -112,12 +86,6 @@ void setup()
 
   server.addHandler(&events);
 
-  if (MYFS.begin()) {
-    Serial.print(F("FS mounted\n"));
-  } else {
-    Serial.print(F("FS mount failed\n"));
-    return;  
-  }
 
   server.serveStatic("/", MYFS, "/").setDefaultFile("index.html");
 
@@ -128,15 +96,6 @@ void setup()
   server.begin();
   Serial.println("Webserver live");
 
-  taskManager.scheduleFixedRate(500, [] {
-    digitalWrite(LED_BUILTIN,LOW); // this is the idle LED, HIGH = off
-    delay(50);
-    digitalWrite(LED_BUILTIN,HIGH);
-    delay(100);
-    digitalWrite(LED_BUILTIN,LOW);
-    delay(50);    
-    digitalWrite(LED_BUILTIN,HIGH);
-  }, TIME_MILLIS);
 
   taskManager.scheduleFixedRate(1, [] {
     ws.cleanupClients(5);
@@ -164,11 +123,9 @@ void setup()
   m_rightFMotor.Enable();
   m_leftRMotor.Enable();
   m_rightRMotor.Enable();
-
-  m_heart.ResetHeart();
 }
 
-void loop()
-{
+void loop() {
+  // required to always be in this method
   taskManager.runLoop();
 }

@@ -58,7 +58,6 @@ using namespace motorcontrol;
 
     void PWMMotorController::Disable(){
         m_enabled = false;
-
     }
 
     void PWMMotorController::Enable(){

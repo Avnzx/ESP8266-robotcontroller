@@ -13,6 +13,5 @@ void Heart::ResetHeart(){
 }
 
 bool Heart::HeartDead(){
-    unsigned long diff = millis() - m_lastBeat;
-    return diff > m_timeout ? true : false;
+    return (millis() - m_lastBeat) > m_timeout ? true : false;
 }
