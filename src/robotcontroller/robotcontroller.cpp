@@ -16,9 +16,6 @@ void robotcontroller::RobotInit() {
     WiFi.softAP(ssid, NULL, 11, 0, 4);
     Serial.printf("\n We are: %s \n", ssid);
 
-    m_safetydisabled = false;
-
-
     if (MDNS.begin("esp8266")){
         Serial.println("MDNS responder started");
     }
@@ -40,9 +37,17 @@ void robotcontroller::RobotInit() {
     delay(50);    
     digitalWrite(LED_BUILTIN,HIGH);
     }, TIME_MILLIS);
+
+    m_enabled = false;
+    m_safetydisabled = false;
 }
 void robotcontroller::RobotPeriodic() {}
 void robotcontroller::DisabledInit() {}
 void robotcontroller::DisabledPeriodic() {}
 void robotcontroller::TeleopInit() {}
 void robotcontroller::TeleopPeriodic() {}
+
+
+void robotcontroller::Disable() { m_enabled = false; }
+void robotcontroller::SafetyDisable() { m_safetydisabled = true; m_enabled = false; }
+void robotcontroller::Enable() { if (m_safetydisabled == false) {m_enabled = true;} }

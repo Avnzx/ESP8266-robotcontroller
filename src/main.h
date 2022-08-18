@@ -22,12 +22,6 @@ motorcontrol::PWMMotorController m_leftRMotor{motors::rearleft};
 motorcontrol::PWMMotorController m_rightFMotor{motors::frontright};
 motorcontrol::PWMMotorController m_rightRMotor{motors::rearright};
 
-// Set LED_BUILTIN if it is not defined by Arduino framework
-#ifndef LED_BUILTIN
-    #define LED_BUILTIN 13
-#endif
-int ledstate = LOW;
-
 
 AsyncWebServer server(httpport);
 AsyncWebSocket ws("/ws");
